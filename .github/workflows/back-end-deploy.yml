@@ -20,11 +20,6 @@ on:
       url:
         value: ${{ jobs.build-artifact.outputs.url }}
         
-env:
-  ARTIFACT_NAME: ${{ inputs.artifact-name }}
-  APP_NAME: ${{ inputs.app-name }}
-  PUBLISH_PROFILE_NAME: ${{ secrets.publish-profile }}
-
 jobs:
   build-artifact:
     name: "Azure Functions Deploy"
@@ -35,7 +30,7 @@ jobs:
       - name: "Download Artifact"
         uses: actions/download-artifact@v4
         with:
-          name: ${{ env.ARTIFACT_NAME }}
+          name: ${{ inputs.artifact-name }}
 
       - name: "Unzip Artifact"
         shell: bash
@@ -47,6 +42,6 @@ jobs:
         uses: Azure/functions-action@v1
         id: deployFunctionApp
         with:
-          app-name: ${{ env.APP_NAME }}
+          app-name: ${{ inputs.app-name }}
           package: "."
           publish-profile: ${{ secrets.publish-profile }}
