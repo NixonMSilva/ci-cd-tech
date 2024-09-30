@@ -47,7 +47,7 @@ jobs:
       - name: "Zip build artifact"
         shell: bash
         run: |
-          pushd '${{ inputs.repo-path }}//${{ inputs.output-path }}'
+          pushd '${{ inputs.repo-path }}/${{ inputs.output-path }}'
           zip -r ${{ inputs.artifact-name }}.zip * 
   
       - name: "Upload Artifact of Function App"
