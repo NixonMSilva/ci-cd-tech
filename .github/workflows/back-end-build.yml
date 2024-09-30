@@ -17,13 +17,6 @@ on:
         required: false
         type: string
         default: .
-      
-
-env:
-  NODE_VERSION: ${{ inputs.NODE_VERSION }}
-  REPO_PATH: ${{ inputs.REPO_PATH }}
-  ARTIFACT_NAME: ${{ inputs.ARTIFACT_NAME }}
-  OUTPUT_PATH: ${{ inputs.OUTPUT_PATH }}
 
 jobs:
   build-artifact:
@@ -32,15 +25,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: "Setup Node.js version ${{ env.NODE_VERSION }}"
+      - name: "Setup Node.js version ${{ inputs.node-version }}"
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ inputs.node-version }}
 
       - name: Install Dependencies
         shell: bash
         run: |
-          pushd './${{ env.REPO_PATH }}'
+          pushd './${{ inputs.repo-path }}'
           npm install
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -48,20 +41,20 @@ jobs:
       - name: Run Build
         shell: bash
         run: |
-          pushd './${{ env.REPO_PATH }}'
+          pushd './${{ inputs.repo-path }}'
           npm run build
 
       - name: "Zip build artifact"
         shell: bash
         run: |
-          pushd './${{ env.REPO_PATH }}/${{ env.OUTPUT_PATH }}'
-          zip -r ${{ env.ARTIFACT_NAME }}.zip * 
+          pushd './${{ inputs.repo-path }}/${{ inputs.output-path }}'
+          zip -r ${{ inputs.artifact-name }}.zip * 
   
       - name: "Upload Artifact of Function App"
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.REPO_PATH }}/${{ env.OUTPUT_PATH != '.' && env.OUTPUT_PATH || '' }}/${{env.ARTIFACT_NAME}}.zip
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.repo-path }}/${{ inputs.output-path != '.' && inputs.output-path || '' }}/${{ inputs.artifact-name }}.zip
           if-no-files-found: error
 
       
