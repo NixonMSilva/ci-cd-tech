@@ -1,0 +1,67 @@
+name: "Build Back-End Package"
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        required: true
+        type: string
+      repo-path:
+        required: true
+        type: string
+        default: .
+      artifact-name:
+        required: true
+        type: string
+      output-path:
+        required: true
+        type: string
+        default: .
+      
+
+env:
+  NODE_VERSION: ${{ inputs.NODE_VERSION }}
+  REPO_PATH: ${{ inputs.REPO_PATH }}
+  ARTIFACT_NAME: ${{ inputs.ARTIFACT_NAME }}
+  OUTPUT_PATH: ${{ inputs.OUTPUT_PATH }}
+
+jobs:
+  build-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: "Setup Node.js version ${{ env.NODE_VERSION }}"
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Dependencies
+        shell: bash
+        run: |
+          pushd './${{ env.REPO_PATH }}'
+          npm install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Run Build
+        shell: bash
+        run: |
+          pushd './${{ env.REPO_PATH }}'
+          npm run build
+
+      - name: "Zip build artifact"
+        shell: bash
+        run: |
+          pushd './${{ env.REPO_PATH }}/${{ env.OUTPUT_PATH }}'
+          zip -r ${{ env.ARTIFACT_NAME }}.zip * 
+  
+      - name: "Upload Artifact of Function App"
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.REPO_PATH }}/${{ env.OUTPUT_PATH != '.' && env.OUTPUT_PATH || '' }}/${{env.ARTIFACT_NAME}}.zip
+          if-no-files-found: error
+
+      
