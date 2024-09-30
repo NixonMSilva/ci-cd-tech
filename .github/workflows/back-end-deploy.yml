@@ -13,11 +13,9 @@ on:
       publish-profile:
         required: true
         type: string
-	
     secrets:
       publish-profile:
         required: true
-		
     outputs:
       url:
         value: ${{ jobs.build-artifact.output.url }}
