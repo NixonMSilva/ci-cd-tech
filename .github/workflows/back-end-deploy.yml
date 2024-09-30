@@ -19,7 +19,7 @@ on:
     outputs:
       url:
         value: ${{ jobs.build-artifact.output.url }}
-	
+        
 env:
   ARTIFACT_NAME: ${{ inputs.artifact-name }}
   APP_NAME: ${{ inputs.app-name }}
