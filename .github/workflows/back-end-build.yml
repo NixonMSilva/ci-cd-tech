@@ -7,14 +7,14 @@ on:
         required: true
         type: string
       repo-path:
-        required: true
+        required: false
         type: string
         default: .
       artifact-name:
         required: true
         type: string
       output-path:
-        required: true
+        required: false
         type: string
         default: .
       
