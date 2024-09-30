@@ -18,7 +18,7 @@ on:
         required: true
     outputs:
       url:
-        value: ${{ jobs.build-artifact.output.url }}
+        value: ${{ jobs.build-artifact.outputs.url }}
         
 env:
   ARTIFACT_NAME: ${{ inputs.artifact-name }}
