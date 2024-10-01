@@ -38,7 +38,7 @@ jobs:
           rm ${{ inputs.artifact-name }}.zip
         
       - name: "Deploy Azure Web App"
-        uses: Azure/functions-action@v1
+        uses: Azure/static-web-apps-deploy@v1
         id: builddeploy
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
