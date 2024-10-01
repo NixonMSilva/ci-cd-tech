@@ -1,4 +1,4 @@
-name: "Deploy Back-End Package"
+name: "Deploy Front-End Package"
 
 on:
   workflow_call:
@@ -7,25 +7,24 @@ on:
         required: true
         type: string
         default: "build-${{ github.event.repository.name }}-${{ github.run_id }}"
-      app-name:
-        required: true
+      environment-name:
+        required: false
         type: string
+        default: Test
       publish-profile:
         required: true
         type: string
     secrets:
-      publish-profile:
-        required: true
-    outputs:
-      url:
-        value: ${{ jobs.build-artifact.outputs.url }}
-        
+        publish-profile:
+          required: true
+          
 jobs:
   deploy-artifact:
-    name: "Azure Functions Deploy"
+    name: "Web App Deploy"
     runs-on: ubuntu-latest
-    outputs:
-      url: ${{ steps.deployFunctionApp.outputs.app-url }}
+    environment:
+      name: ${{ inputs.environment-name}}
+      url: ${{ steps.builddeploy.outputs.static_web_app_url }}
     steps:
       - name: "Download Artifact"
         uses: actions/download-artifact@v4
@@ -38,10 +37,13 @@ jobs:
           unzip ${{ inputs.artifact-name }}.zip -d .
           rm ${{ inputs.artifact-name }}.zip
         
-      - name: "Deploy Function App"
+      - name: "Deploy Azure Web App"
         uses: Azure/functions-action@v1
-        id: deployFunctionApp
+        id: builddeploy
         with:
-          app-name: ${{ inputs.app-name }}
-          package: "."
-          publish-profile: ${{ secrets.publish-profile }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          azure_static_web_apps_api_token: ${{ secrets.publish-profile }}
+          action: "upload"
+          app_location: "/"
+          app_artifact_location: "/"
+          skip_app_build: true
