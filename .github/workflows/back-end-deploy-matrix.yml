@@ -1,0 +1,53 @@
+name: "Deploy Back-End Package"
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        required: true
+        type: string
+        default: "build-${{ github.event.repository.name }}-${{ github.run_id }}"
+      app-name:
+        required: true
+        type: string
+      publish-profile:
+        required: true
+        type: string
+      matrix:
+        required: true
+        type: string
+    secrets:
+      publish-profile:
+        required: true
+    outputs:
+      url:
+        value: ${{ jobs.build-artifact.outputs.url }}
+        
+jobs:
+  deploy-artifact:
+    name: "Azure Functions Deploy"
+    runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.deployFunctionApp.outputs.app-url }}
+    strategy:
+      matrix:
+        ${{ fromJson(inputs.matrix) }}
+    steps:
+      - name: "Download Artifact"
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+
+      - name: "Unzip Artifact"
+        shell: bash
+        run: |
+          unzip ${{ inputs.artifact-name }}.zip -d .
+          rm ${{ inputs.artifact-name }}.zip
+        
+      - name: "Deploy Function App"
+        uses: Azure/functions-action@v1
+        id: deployFunctionApp
+        with:
+          app-name: ${{ matrix.app-name }}
+          package: "."
+          publish-profile: ${{ secrets.publish-profile }}
