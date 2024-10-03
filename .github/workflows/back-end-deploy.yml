@@ -15,7 +15,7 @@ on:
         type: string
     secrets:
       publish-profile:
-        required: true
+        required: false
     outputs:
       url:
         value: ${{ jobs.build-artifact.outputs.url }}
@@ -44,4 +44,4 @@ jobs:
         with:
           app-name: ${{ inputs.app-name }}
           package: "."
-          publish-profile: ${{ secrets.publish-profile }}
+          publish-profile: ${{ secrets[inputs.publish-profile] }}
